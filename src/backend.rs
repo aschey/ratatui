@@ -106,9 +106,9 @@ use strum::{Display, EnumString};
 
 use crate::{buffer::Cell, layout::Size, prelude::Rect};
 
-#[cfg(feature = "termion")]
+#[cfg(all(unix, feature = "termion"))]
 mod termion;
-#[cfg(feature = "termion")]
+#[cfg(all(unix, feature = "termion"))]
 pub use self::termion::TermionBackend;
 
 #[cfg(feature = "crossterm")]

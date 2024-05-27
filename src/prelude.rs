@@ -19,7 +19,7 @@
 
 #[cfg(feature = "crossterm")]
 pub use crate::backend::CrosstermBackend;
-#[cfg(feature = "termion")]
+#[cfg(all(unix, feature = "termion"))]
 pub use crate::backend::TermionBackend;
 #[cfg(feature = "termwiz")]
 pub use crate::backend::TermwizBackend;
