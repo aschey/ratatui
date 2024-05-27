@@ -20,7 +20,7 @@ use argh::FromArgs;
 mod app;
 #[cfg(feature = "crossterm")]
 mod crossterm;
-#[cfg(feature = "termion")]
+#[cfg(all(unix, feature = "termion"))]
 mod termion;
 #[cfg(feature = "termwiz")]
 mod termwiz;
@@ -43,7 +43,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let tick_rate = Duration::from_millis(cli.tick_rate);
     #[cfg(feature = "crossterm")]
     crate::crossterm::run(tick_rate, cli.enhanced_graphics)?;
-    #[cfg(feature = "termion")]
+    #[cfg(all(unix, feature = "termion"))]
     crate::termion::run(tick_rate, cli.enhanced_graphics)?;
     #[cfg(feature = "termwiz")]
     crate::termwiz::run(tick_rate, cli.enhanced_graphics)?;
