@@ -26,18 +26,23 @@
 // is useful when the state is only used by the widget and doesn't need to be shared with
 // other widgets.
 
-use std::time::{Duration, Instant};
+use std::{
+    sync::atomic::{AtomicBool, Ordering},
+    thread,
+    time::{Duration, Instant},
+};
 
 use color_eyre::Result;
+use crossterm::event::{self, Event, KeyCode, KeyEventKind};
 use palette::{convert::FromColorUnclamped, Okhsv, Srgb};
 use ratatui::{
     buffer::Buffer,
-    crossterm::event::{self, Event, KeyCode, KeyEventKind},
     layout::{Constraint, Layout, Position, Rect},
+    prelude::Backend,
     style::Color,
     text::Text,
     widgets::Widget,
-    DefaultTerminal,
+    Terminal,
 };
 
 fn main() -> Result<()> {
@@ -50,24 +55,11 @@ fn main() -> Result<()> {
 
 #[derive(Debug, Default)]
 struct App {
-    /// The current state of the app (running or quit)
-    state: AppState,
-
     /// A widget that displays the current frames per second
     fps_widget: FpsWidget,
 
     /// A widget that displays the full range of RGB colors that can be displayed in the terminal.
     colors_widget: ColorsWidget,
-}
-
-#[derive(Debug, Default, PartialEq, Eq)]
-enum AppState {
-    /// The app is running
-    #[default]
-    Running,
-
-    /// The user has requested the app to quit
-    Quit,
 }
 
 /// A widget that displays the current frames per second
@@ -98,39 +90,35 @@ struct ColorsWidget {
     frame_count: usize,
 }
 
+static EXIT: AtomicBool = AtomicBool::new(false);
+
 impl App {
     /// Run the app
     ///
     /// This is the main event loop for the app.
-    pub fn run(mut self, mut terminal: DefaultTerminal) -> Result<()> {
-        while self.is_running() {
+    pub fn run(mut self, mut terminal: Terminal<impl Backend>) -> Result<()> {
+        let event_thread = thread::spawn(event_loop);
+        while !EXIT.load(Ordering::Relaxed) {
             terminal.draw(|frame| frame.render_widget(&mut self, frame.area()))?;
-            self.handle_events()?;
         }
+        event_thread.join().unwrap()?;
         Ok(())
     }
+}
 
-    const fn is_running(&self) -> bool {
-        matches!(self.state, AppState::Running)
-    }
-
-    /// Handle any events that have occurred since the last time the app was rendered.
-    ///
-    /// Currently, this only handles the q key to quit the app.
-    fn handle_events(&mut self) -> Result<()> {
-        // Ensure that the app only blocks for a period that allows the app to render at
-        // approximately 60 FPS (this doesn't account for the time to render the frame, and will
-        // also update the app immediately any time an event occurs)
-        let timeout = Duration::from_secs_f32(1.0 / 60.0);
+fn event_loop() -> Result<()> {
+    let timeout = Duration::from_secs_f32(1.0 / 60.0);
+    loop {
         if event::poll(timeout)? {
             if let Event::Key(key) = event::read()? {
                 if key.kind == KeyEventKind::Press && key.code == KeyCode::Char('q') {
-                    self.state = AppState::Quit;
+                    EXIT.store(true, Ordering::Relaxed);
+                    break;
                 };
             }
         }
-        Ok(())
     }
+    Ok(())
 }
 
 /// Implement the Widget trait for &mut App so that it can be rendered
