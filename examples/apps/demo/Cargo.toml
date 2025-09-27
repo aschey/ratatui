@@ -10,13 +10,15 @@ default = ["crossterm"]
 crossterm = ["ratatui/crossterm", "dep:crossterm"]
 termion = ["ratatui/termion", "dep:termion"]
 termwiz = ["ratatui/termwiz", "dep:termwiz"]
+termina = ["ratatui/termina", "dep:termina"]
 
 [dependencies]
 clap.workspace = true
-crossterm = { workspace = true, optional = true }
+crossterm = { workspace = true, optional = true, features = ["use-dev-tty"] }
 rand.workspace = true
 ratatui.workspace = true
 termwiz = { workspace = true, optional = true }
+termina = { workspace = true, optional = true }
 
 [target.'cfg(not(windows))'.dependencies]
 termion = { workspace = true, optional = true }

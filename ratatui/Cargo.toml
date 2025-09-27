@@ -36,6 +36,7 @@ crossterm = ["std", "dep:ratatui-crossterm"]
 termion = ["std", "dep:ratatui-termion"]
 ## enables the [`TermwizBackend`](backend::TermwizBackend) backend and adds a dependency on [`termwiz`].
 termwiz = ["std", "dep:ratatui-termwiz"]
+termina = ["std", "dep:ratatui-termina"]
 
 ## enables std
 std = ["ratatui-core/std", "ratatui-widgets/std"]
@@ -123,6 +124,7 @@ ratatui-core = { workspace = true }
 ratatui-crossterm = { workspace = true, optional = true }
 ratatui-macros = { workspace = true, optional = true }
 ratatui-termwiz = { workspace = true, optional = true }
+ratatui-termina = { workspace = true, optional = true }
 ratatui-widgets = { workspace = true }
 serde = { workspace = true, optional = true }
 

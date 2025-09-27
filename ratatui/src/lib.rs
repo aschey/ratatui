@@ -455,6 +455,8 @@ pub mod backend {
     pub use ratatui_core::backend::{Backend, ClearType, TestBackend, WindowSize};
     #[cfg(feature = "crossterm")]
     pub use ratatui_crossterm::{CrosstermBackend, FromCrossterm, IntoCrossterm};
+    #[cfg(feature = "termina")]
+    pub use ratatui_termina::{FromTermina, IntoTermina, TerminaBackend};
     #[cfg(all(not(windows), feature = "termion"))]
     pub use ratatui_termion::{FromTermion, IntoTermion, TermionBackend};
     #[cfg(feature = "termwiz")]
